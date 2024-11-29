@@ -8,15 +8,25 @@ const resetButton = document.querySelector('button[type="reset"]');
 
 const students = []; // Array to store student data
 
-
-// Fetch all students from the server
+// Fetch student data from the server
 fetch('/students')
-    .then(response => response.json()) // Parse the JSON data from the server response
+    .then(response => {
+        // Check if the server response is valid
+        if (!response.ok) {
+            // Throw an error if the response is not valid
+            throw new Error('Network response was not ok');
+        }
+        return response.json(); // Parse and return the response as JSON
+    })
     .then(data => {
-        console.log(data);  // Log the student data to the console
+        console.log(data); // Log the fetched student data for debugging
+        renderStudentList(data); // Call a function to display the data
     })
     .catch(error => {
-        console.error('Error fetching students:', error); // Log an error if the fetch fails
+        // Handle errors that occur during fetch or JSON parsing
+        const studentList = document.querySelector('#student-list ul');
+        studentList.innerHTML = '<li>Error loading student data</li>'; // Display error message in the UI
+        console.error('Error fetching students:', error); // Log the error for debugging
     });
 
 
@@ -43,19 +53,16 @@ form.addEventListener('submit', (event) => {
     alert("Student Added Successfully!");
 });
 
-function addStudent(name, email) {
-    const listItem = document.createElement('li');
-    listItem.textContent = `${name} - ${email}`; // Format the student data
-    studentList.appendChild(listItem); // Add the list item to the student list
-}
-
+// Function to render the student list in the DOM
 function renderStudentList(students) {
-    // Clear the current list
-    studentList.innerHTML = '';
+    const studentList = document.querySelector('#student-list ul'); // Select the student list container
+    studentList.innerHTML = ''; // Clear the list before rendering
 
-    // Loop through the student array and add each to the list
+    // Iterate over the array of students
     students.forEach(student => {
-        addStudent(student.name, student.email);
+        const listItem = document.createElement('li'); // Create a new list item element
+        listItem.textContent = `${student.name} - ${student.email}`; // Set the content to the student's name and email
+        studentList.appendChild(listItem); // Append the list item to the student list
     });
 }
 
